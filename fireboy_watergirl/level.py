@@ -8,22 +8,28 @@ PLAYER_HEIGHT = 52
 
 
 class Level:
+    """This class is used to create levels for the game, and contains
+    code to generate some sample levels."""
     def __init__(
         self,
         platforms: list[pygame.Rect],
         fire_start: tuple[int, int],
         water_start: tuple[int, int],
+        door: pygame.Rect,
         *,
         name: str,
     ) -> None:
         self.platforms = platforms
         self.fire_start = fire_start
         self.water_start = water_start
+        self.door = door
         self.name = name
 
         self.background_color = (18, 20, 30)
         self.platform_color = (100, 103, 118)
         self.accent_color = (63, 67, 81)
+        self.door_color = (170, 210, 115)
+        self.door_border_color = (214, 242, 168)
 
     @classmethod
     def sample_levels(cls, screen_width: int, screen_height: int) -> list["Level"]:
@@ -63,6 +69,7 @@ class Level:
 
         fire_markers: list[tuple[int, int]] = []
         water_markers: list[tuple[int, int]] = []
+        door_markers: list[tuple[int, int]] = []
         platforms: list[pygame.Rect] = []
 
         for row_idx, row in enumerate(grid):
@@ -75,22 +82,30 @@ class Level:
                     fire_markers.append((col_idx, row_idx))
                 elif cell == "W":
                     water_markers.append((col_idx, row_idx))
+                elif cell == "D":
+                    door_markers.append((col_idx, row_idx))
                 elif cell == ".":
                     continue
                 else:
                     msg = f"Unsupported level cell {cell!r} in level {name!r}."
                     raise ValueError(msg)
 
-        if len(fire_markers) != 1 or len(water_markers) != 1:
-            msg = f"Level {name!r} must include exactly one F and one W spawn."
+        if (
+            len(fire_markers) != 1
+            or len(water_markers) != 1
+            or len(door_markers) != 1
+        ):
+            msg = f"Level {name!r} must include exactly one F, one W, and one D."
             raise ValueError(msg)
 
         fire_start = cls._spawn_from_marker(fire_markers[0], tile_size)
         water_start = cls._spawn_from_marker(water_markers[0], tile_size)
+        door = cls._door_from_marker(door_markers[0], tile_size)
         return cls(
             platforms=platforms,
             fire_start=fire_start,
             water_start=water_start,
+            door=door,
             name=name,
         )
 
@@ -100,6 +115,13 @@ class Level:
         x = col_idx * tile_size + (tile_size - PLAYER_WIDTH) // 2
         y = (row_idx + 1) * tile_size - PLAYER_HEIGHT
         return (x, y)
+
+    @staticmethod
+    def _door_from_marker(marker: tuple[int, int], tile_size: int) -> pygame.Rect:
+        col_idx, row_idx = marker
+        x = col_idx * tile_size
+        y = row_idx * tile_size
+        return pygame.Rect(x, y, tile_size, tile_size * 2)
 
     @staticmethod
     def _blank_grid(cols: int, rows: int) -> list[list[str]]:
@@ -147,6 +169,7 @@ class Level:
 
         grid[rows - 3][2] = "F"
         grid[rows - 3][6] = "W"
+        grid[rows - 4][cols - 4] = "D"
         return ["".join(row) for row in grid]
 
     @classmethod
@@ -164,6 +187,7 @@ class Level:
 
         grid[rows - 3][3] = "F"
         grid[rows - 3][8] = "W"
+        grid[rows - 4][cols - 5] = "D"
         return ["".join(row) for row in grid]
 
     def draw(self, surface: pygame.Surface) -> None:
@@ -171,4 +195,6 @@ class Level:
         for platform in self.platforms:
             pygame.draw.rect(surface, self.platform_color, platform)
             pygame.draw.rect(surface, self.accent_color, platform, width=2)
+        pygame.draw.rect(surface, self.door_color, self.door)
+        pygame.draw.rect(surface, self.door_border_color, self.door, width=3)
 

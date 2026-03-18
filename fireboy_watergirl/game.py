@@ -60,6 +60,9 @@ class Game:
             player.update(self.level.platforms, dt)
             player.keep_in_bounds(self.world_bounds)
 
+        if all(player.rect.colliderect(self.level.door) for player in self.players):
+            self._load_level(self.level_index + 1)
+
     def _draw(self) -> None:
         self.level.draw(self.screen)
         for player in self.players:
@@ -70,10 +73,13 @@ class Game:
             f"{self.level.name} ({self.level_index + 1}/{len(self.levels)})"
             " | N: next level | P: previous | R: reset"
         )
+        objective_text = "Objective: both players stand in the green door together"
         controls_surface = self.font.render(controls_text, True, (240, 240, 240))
         level_surface = self.font.render(level_text, True, (240, 240, 240))
+        objective_surface = self.font.render(objective_text, True, (190, 238, 170))
         self.screen.blit(controls_surface, (24, 12))
         self.screen.blit(level_surface, (24, 36))
+        self.screen.blit(objective_surface, (24, 60))
 
         pygame.display.flip()
 
