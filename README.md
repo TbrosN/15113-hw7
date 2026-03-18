@@ -28,11 +28,14 @@ Or:
 uv run python -m fireboy_watergirl.main
 ```
 
-## Structure
+## MVP Structure
 
-- `fireboy_watergirl/main.py` – entry point and game loop
-- `fireboy_watergirl/game.py` – `Game` class (window, clock, level/players)
-- `fireboy_watergirl/players.py` – `FireBoy` and `WaterGirl` (stubs)
-- `fireboy_watergirl/level.py` – `Level` (platforms, hazards; stub with ground)
+- `fireboy_watergirl/main.py` - entry point (`run`)
+- `fireboy_watergirl/game.py` - game loop, input, update, render
+- `fireboy_watergirl/players.py` - player physics (walk/jump + collisions)
+- `fireboy_watergirl/level.py` - rectangle platform test level
 
-Controls and full gameplay are left for you to implement.
+## Controls
+
+- FireBoy: `A` / `D` to move, `W` to jump
+- WaterGirl: Left / Right arrows to move, Up arrow to jump
