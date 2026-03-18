@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pygame
 
-from fireboy_watergirl.level import Level
+from fireboy_watergirl.level import Level, Pool
 from fireboy_watergirl.players import FireBoy, WaterGirl
 
 # pylint: disable=no-member
@@ -60,8 +60,23 @@ class Game:
             player.update(self.level.platforms, dt)
             player.keep_in_bounds(self.world_bounds)
 
+        for player in self.players:
+            for pool in self.level.pools:
+                if player.rect.colliderect(pool.rect) and not self._is_pool_safe_for_player(
+                    player, pool
+                ):
+                    self._load_level(self.level_index)
+                    return
+
         if all(player.rect.colliderect(self.level.door) for player in self.players):
             self._load_level(self.level_index + 1)
+
+    def _is_pool_safe_for_player(self, player: FireBoy | WaterGirl, pool: Pool) -> bool:
+        if pool.kind == "green":
+            return False
+        if pool.kind == "fire":
+            return isinstance(player, FireBoy)
+        return isinstance(player, WaterGirl)
 
     def _draw(self) -> None:
         self.level.draw(self.screen)
@@ -74,12 +89,15 @@ class Game:
             " | N: next level | P: previous | R: reset"
         )
         objective_text = "Objective: both players stand in the green door together"
+        pool_text = "Pools: fire=FireBoy safe | water=WaterGirl safe | green=unsafe for both"
         controls_surface = self.font.render(controls_text, True, (240, 240, 240))
         level_surface = self.font.render(level_text, True, (240, 240, 240))
         objective_surface = self.font.render(objective_text, True, (190, 238, 170))
+        pool_surface = self.font.render(pool_text, True, (230, 230, 230))
         self.screen.blit(controls_surface, (24, 12))
         self.screen.blit(level_surface, (24, 36))
         self.screen.blit(objective_surface, (24, 60))
+        self.screen.blit(pool_surface, (24, 84))
 
         pygame.display.flip()
 

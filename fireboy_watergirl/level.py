@@ -1,10 +1,19 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+from typing import Literal
+
 import pygame
 
 
 PLAYER_WIDTH = 36
 PLAYER_HEIGHT = 52
+
+
+@dataclass
+class Pool:
+    kind: Literal["fire", "water", "green"]
+    rect: pygame.Rect
 
 
 class Level:
@@ -13,6 +22,7 @@ class Level:
     def __init__(
         self,
         platforms: list[pygame.Rect],
+        pools: list[Pool],
         fire_start: tuple[int, int],
         water_start: tuple[int, int],
         door: pygame.Rect,
@@ -20,6 +30,7 @@ class Level:
         name: str,
     ) -> None:
         self.platforms = platforms
+        self.pools = pools
         self.fire_start = fire_start
         self.water_start = water_start
         self.door = door
@@ -30,6 +41,9 @@ class Level:
         self.accent_color = (63, 67, 81)
         self.door_color = (170, 210, 115)
         self.door_border_color = (214, 242, 168)
+        self.fire_pool_color = (225, 94, 60)
+        self.water_pool_color = (70, 155, 230)
+        self.green_pool_color = (115, 200, 110)
 
     @classmethod
     def sample_levels(cls, screen_width: int, screen_height: int) -> list["Level"]:
@@ -71,6 +85,7 @@ class Level:
         water_markers: list[tuple[int, int]] = []
         door_markers: list[tuple[int, int]] = []
         platforms: list[pygame.Rect] = []
+        pools: list[Pool] = []
 
         for row_idx, row in enumerate(grid):
             for col_idx, cell in enumerate(row):
@@ -84,6 +99,16 @@ class Level:
                     water_markers.append((col_idx, row_idx))
                 elif cell == "D":
                     door_markers.append((col_idx, row_idx))
+                elif cell == "L":
+                    pools.append(Pool(kind="fire", rect=pygame.Rect(x, y, tile_size, tile_size)))
+                elif cell == "U":
+                    pools.append(
+                        Pool(kind="water", rect=pygame.Rect(x, y, tile_size, tile_size))
+                    )
+                elif cell == "G":
+                    pools.append(
+                        Pool(kind="green", rect=pygame.Rect(x, y, tile_size, tile_size))
+                    )
                 elif cell == ".":
                     continue
                 else:
@@ -103,6 +128,7 @@ class Level:
         door = cls._door_from_marker(door_markers[0], tile_size)
         return cls(
             platforms=platforms,
+            pools=pools,
             fire_start=fire_start,
             water_start=water_start,
             door=door,
@@ -170,6 +196,9 @@ class Level:
         grid[rows - 3][2] = "F"
         grid[rows - 3][6] = "W"
         grid[rows - 4][cols - 4] = "D"
+        cls._fill_rect(grid, left=14, top=rows - 2, width=4, height=1, char="L")
+        cls._fill_rect(grid, left=21, top=rows - 2, width=4, height=1, char="U")
+        cls._fill_rect(grid, left=29, top=rows - 2, width=5, height=1, char="G")
         return ["".join(row) for row in grid]
 
     @classmethod
@@ -188,10 +217,21 @@ class Level:
         grid[rows - 3][3] = "F"
         grid[rows - 3][8] = "W"
         grid[rows - 4][cols - 5] = "D"
+        cls._fill_rect(grid, left=12, top=rows - 2, width=3, height=1, char="U")
+        cls._fill_rect(grid, left=19, top=rows - 2, width=3, height=1, char="L")
+        cls._fill_rect(grid, left=27, top=rows - 2, width=4, height=1, char="G")
         return ["".join(row) for row in grid]
 
     def draw(self, surface: pygame.Surface) -> None:
         surface.fill(self.background_color)
+        for pool in self.pools:
+            if pool.kind == "fire":
+                color = self.fire_pool_color
+            elif pool.kind == "water":
+                color = self.water_pool_color
+            else:
+                color = self.green_pool_color
+            pygame.draw.rect(surface, color, pool.rect)
         for platform in self.platforms:
             pygame.draw.rect(surface, self.platform_color, platform)
             pygame.draw.rect(surface, self.accent_color, platform, width=2)
