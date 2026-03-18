@@ -33,9 +33,10 @@ uv run python -m fireboy_watergirl.main
 - `fireboy_watergirl/main.py` - entry point (`run`)
 - `fireboy_watergirl/game.py` - game loop, input, update, render
 - `fireboy_watergirl/players.py` - player physics (walk/jump + collisions)
-- `fireboy_watergirl/level.py` - rectangle platform test level
+- `fireboy_watergirl/level.py` - generated grid-based levels (`#`, `F`, `W`)
 
 ## Controls
 
 - FireBoy: `A` / `D` to move, `W` to jump
 - WaterGirl: Left / Right arrows to move, Up arrow to jump
+- Level controls: `N` next level, `P` previous level, `R` reset current level

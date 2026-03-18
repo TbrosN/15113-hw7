@@ -5,6 +5,8 @@ import pygame
 from fireboy_watergirl.level import Level
 from fireboy_watergirl.players import FireBoy, WaterGirl
 
+# pylint: disable=no-member
+
 
 class Game:
     def __init__(self) -> None:
@@ -18,8 +20,14 @@ class Game:
         self.font = pygame.font.SysFont(None, 24)
         self.running = True
 
-        self.level = Level.basic_test_level(self.screen_width, self.screen_height)
         self.world_bounds = self.screen.get_rect()
+        self.levels = Level.sample_levels(self.screen_width, self.screen_height)
+        self.level_index = 0
+        self._load_level(self.level_index)
+
+    def _load_level(self, level_index: int) -> None:
+        self.level_index = level_index % len(self.levels)
+        self.level = self.levels[self.level_index]
         self.fireboy = FireBoy(self.level.fire_start)
         self.watergirl = WaterGirl(self.level.water_start)
         self.players = [self.fireboy, self.watergirl]
@@ -37,6 +45,13 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    self._load_level(self.level_index)
+                elif event.key == pygame.K_n:
+                    self._load_level(self.level_index + 1)
+                elif event.key == pygame.K_p:
+                    self._load_level(self.level_index - 1)
 
     def _update(self, dt: float) -> None:
         keys = pygame.key.get_pressed()
@@ -50,11 +65,15 @@ class Game:
         for player in self.players:
             player.draw(self.screen)
 
-        controls_text = (
-            "FireBoy: A/D move, W jump   |   WaterGirl: <-/-> move, UP jump"
+        controls_text = "FireBoy: A/D move, W jump | WaterGirl: <-/-> move, UP jump"
+        level_text = (
+            f"{self.level.name} ({self.level_index + 1}/{len(self.levels)})"
+            " | N: next level | P: previous | R: reset"
         )
-        text_surface = self.font.render(controls_text, True, (240, 240, 240))
-        self.screen.blit(text_surface, (24, 16))
+        controls_surface = self.font.render(controls_text, True, (240, 240, 240))
+        level_surface = self.font.render(level_text, True, (240, 240, 240))
+        self.screen.blit(controls_surface, (24, 12))
+        self.screen.blit(level_surface, (24, 36))
 
         pygame.display.flip()
 
