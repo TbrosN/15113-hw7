@@ -1,0 +1,19 @@
+[project]
+name = "fireboy-watergirl"
+version = "0.1.0"
+description = "A Fire Boy and Water Girl clone built with Pygame"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pygame>=2.5.0",
+]
+
+[project.scripts]
+fireboy-watergirl = "fireboy_watergirl.main:run"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = []
