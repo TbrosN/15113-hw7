@@ -37,16 +37,11 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == self.fireboy.controls.jump:
-                    self.fireboy.jump()
-                if event.key == self.watergirl.controls.jump:
-                    self.watergirl.jump()
 
     def _update(self, dt: float) -> None:
         keys = pygame.key.get_pressed()
         for player in self.players:
-            player.handle_movement_input(keys)
+            player.handle_movement_input(keys, dt)
             player.update(self.level.platforms, dt)
             player.keep_in_bounds(self.world_bounds)
 

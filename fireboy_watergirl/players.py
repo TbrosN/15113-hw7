@@ -35,15 +35,21 @@ class Player:
         self.vel_x = 0.0
         self.vel_y = 0.0
         self.on_ground = False
+        self.jump_key_was_down = False
 
         self.move_speed = 290.0
         self.jump_velocity = 560.0
         self.gravity = 1300.0
         self.max_fall_speed = 900.0
+        self.coyote_time = 0.10
+        self.jump_buffer_time = 0.12
+        self.coyote_timer = 0.0
+        self.jump_buffer_timer = 0.0
 
-    def handle_movement_input(self, keys: pygame.key.ScancodeWrapper) -> None:
+    def handle_movement_input(self, keys: pygame.key.ScancodeWrapper, dt: float) -> None:
         moving_left = keys[self.controls.left]
         moving_right = keys[self.controls.right]
+        jump_key_down = keys[self.controls.jump]
 
         if moving_left and not moving_right:
             self.vel_x = -self.move_speed
@@ -52,12 +58,28 @@ class Player:
         else:
             self.vel_x = 0.0
 
-    def jump(self) -> None:
-        if self.on_ground:
+        # Register jump requests on the press edge so holding jump
+        # doesn't repeatedly trigger while airborne.
+        if jump_key_down and not self.jump_key_was_down:
+            self.jump_buffer_timer = self.jump_buffer_time
+        self.jump_key_was_down = jump_key_down
+
+        self.jump_buffer_timer = max(0.0, self.jump_buffer_timer - dt)
+
+    def try_jump(self) -> None:
+        if self.jump_buffer_timer > 0.0 and self.coyote_timer > 0.0:
             self.vel_y = -self.jump_velocity
             self.on_ground = False
+            self.coyote_timer = 0.0
+            self.jump_buffer_timer = 0.0
 
     def update(self, platforms: list[pygame.Rect], dt: float) -> None:
+        if self.on_ground:
+            self.coyote_timer = self.coyote_time
+        else:
+            self.coyote_timer = max(0.0, self.coyote_timer - dt)
+
+        self.try_jump()
         self.vel_y = min(self.vel_y + self.gravity * dt, self.max_fall_speed)
 
         self._move_horizontally(platforms, dt)
