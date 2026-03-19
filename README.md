@@ -41,4 +41,3 @@ uv run python -m fireboy_watergirl.main
 - WaterGirl: Left / Right arrows to move, Up arrow to jump
 - Level controls: `N` next level, `P` previous level, `R` reset current level
 - Goal: both players must overlap the green door at the same time to clear the level
-- Pools: `L` (fire pool; safe for FireBoy), `U` (water pool; safe for WaterGirl), `G` (green pool; unsafe for both)

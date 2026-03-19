@@ -1,0 +1,19 @@
+I used Cursor for this.
+
+I want to make a clone of fire boy and water girl in pygame, let's use uv as the package manager and just set up the scaffolding for the project.
+
+In this repo, I want to make a clone of fireboy and watergirl. Let's start with a basic MVP using rects for all the graphics, just implement walking and jumping, and build a simple level that we can test on.
+
+I dont see the characters, the top of the level might be getting cut off. Can we simplify this so the level is just one platform on the ground, ensuring we dont go outside of the window bounds
+
+seems that player 1 cant jump while player 2 is jumping, and in general sometimes the jump button doesnt work
+
+now I want to add more complex levels. Whats a low-lift yet effective way to design levels for this game?
+
+Awesome, let's implement this and make a couple of sample levels (you can generate the levels programatically to avoid typing out a 40x40 level).
+
+every level should have a door, that when reached by both players (i.e. both players simultaneously colliding with it), they beat the level and move onto the next one.
+
+let's also add water/fire pools, where only one player can safely swim in it, depending on whether they are fire boy or water girl. There is also a green pool that neither player can swim in
+
+can you lookup some actual fire boy and water girl levels (perhaps images) and then implement replicas of them as sample levels in @fireboy_watergirl/level.py ?
